@@ -1,4 +1,3 @@
-
-include
-lib
-.exe
+include/SDL2/*.h
+lib/*
+*.exe

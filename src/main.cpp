@@ -37,11 +37,12 @@ void initialize() {
 
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char** argv) { // arrays and pointers are related
 
     initialize();
 
     // TODO STUFF: //SDL_Surface* surface = SDL_LoadBMP("../build/image/jpegbrick.bmp");
+
     SDL_Window* window = SDL_CreateWindow("Physics simulation", 
                                           SDL_WINDOWPOS_UNDEFINED, 
                                           SDL_WINDOWPOS_UNDEFINED,
