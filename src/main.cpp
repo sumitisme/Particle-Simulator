@@ -34,7 +34,27 @@ void initialize() {
     else {
         std::cout << "SDL video has initialized\n";
     }
+}
 
+void DrawCircle(int h, int k, int r, SDL_Renderer* renderer) {
+    float x1, x2, y1, y2;
+
+    float theta = 0;
+
+    x1 = (float) h + r * cos(theta);
+    y1 = (float) k + r * sin(theta);
+
+    for(int i = 1; i <= MAX_NUM; i++) {
+        x2 = float(h + r * cos((2 * PI) / MAX_NUM * i));
+        y2 = float(k + r * sin((2 * PI) / MAX_NUM * i));
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawLineF(renderer, x1, y1, x2, y2);
+        SDL_RenderPresent(renderer);
+
+        x1 = x2;
+        y1 = y2;
+    }
 }
 
 int main(int argc, char** argv) { // arrays and pointers are related
@@ -107,8 +127,14 @@ int main(int argc, char** argv) { // arrays and pointers are related
             // if(event.type == SDL_MOUSEMOTION) {
             //     std::cout << "Mouse has been moved\n";
             // }
-        }
+            
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+                SDL_RenderClear(renderer);
 
+                DrawCircle(mouse_x, mouse_y, 10, renderer); // This will render a circle. This will only happen momentarily and this is a test.
+            }
+        }
 
         SDL_SetRenderDrawColor(renderer, 
                                255, 
