@@ -1,181 +1,217 @@
-// FOR COMPILING THE CODE
-//
-// go to location "project folder\src"
-//
-// --> make
-// --> ..\build\prog
-
-
-// 3rd party libraries
-#include "SDL2/SDL_error.h"
-#include "SDL2/SDL_events.h"
-#include "SDL2/SDL_mouse.h"
-#include "SDL2/SDL_pixels.h"
-#include "SDL2/SDL_render.h"
-#include "SDL2/SDL_scancode.h"
-#include "SDL2/SDL_surface.h"
-#include "SDL2/SDL_timer.h"
-#include "SDL2/SDL_video.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_timer.h>
 
-// Standard library
-#include <math.h>
+// For OpenGL functions
+#include <glad/glad.h>
+
+// The functions for mathematical transformation
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/trigonometric.hpp>
+
 #include <iostream>
+#include <windows.h>
 
-// User-defined libraries
-#include "definitions.h"
+#include "window.h"
 #include "entity.h"
+#include "shape.h"
+#include "definitions.h"
 
-void initialize() {
+bool IsRunning = true;
+GLuint VertexArrayObject = 0;
+GLuint VertexBufferObject = 0;
+GLuint ElementBufferObject = 0;
+GLuint ShaderProgram = 0;
+GLuint VertexShader = 0;
+GLuint FragmentShader = 0;
 
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "SDL failed to initialize\n";
-    }
-    else {
-        std::cout << "SDL video has initialized\n";
-    }
+void VertexSpecification();
+void CreateGraphicsPipeline();
+void MainLoop(Window &);
+void Draw();
+void CleanUp();
+
+const char* VertexShaderSource = 
+    "#version 330 core\n"
+    "layout (location = 0) in vec4 position;\n"
+    "layout (location = 1) in vec3 vcolor;\n"
+
+    "uniform mat4 transform;\n"
+
+    "out vec3 ourColor;\n"
+    "void main() {\n"
+    "   gl_Position = transform * vec4(position.x, position.y, position.z, position.w);"
+    "   ourColor = vcolor;\n"
+    "}\0";
+
+const char* FragmentShaderSource = 
+    "#version 330 core\n"
+    "in vec3 ourColor;\n"
+    "out vec4 color;\n"
+    "void main() {\n"
+    "   color = vec4(ourColor, 1.0f);\n"
+    "}\0";
+
+int main(int argc, char** argv) {
+    
+    Window win;
+
+    VertexSpecification();
+
+    CreateGraphicsPipeline();
+
+    MainLoop(win); // Need to pass this class for buffer swapping
+
+    CleanUp();
+
+    win.cleanup();
+
+    return 0;
 }
 
-void DrawCircle(int h, int k, int r, SDL_Renderer* renderer) {
-    float x1, x2, y1, y2;
+void VertexSpecification() {
 
-    float theta = 0;
+    glGenVertexArrays(1, &VertexArrayObject);
+    glGenBuffers(1, &VertexBufferObject);
+    glGenBuffers(1, &ElementBufferObject);
 
-    x1 = (float) h + r * cos(theta);
-    y1 = (float) k + r * sin(theta);
+    glBindVertexArray(VertexArrayObject);
+    glBindBuffer(GL_ARRAY_BUFFER, VertexBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);
 
-    for(int i = 1; i <= MAX_NUM; i++) {
-        x2 = float(h + r * cos((2 * PI) / MAX_NUM * i));
-        y2 = float(k + r * sin((2 * PI) / MAX_NUM * i));
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(vertices),
+        vertices,
+        GL_DYNAMIC_DRAW
+    );
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-        SDL_RenderDrawLineF(renderer, x1, y1, x2, y2);
-        SDL_RenderPresent(renderer);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(indices),
+        indices,
+        GL_DYNAMIC_DRAW
+    );
 
-        x1 = x2;
-        y1 = y2;
-    }
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        6 * sizeof(float),
+        (void *)0
+    );
+    glEnableVertexAttribArray(0);
+
+    // IMPORTANT!!!
+    glVertexAttribPointer(
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        6 * sizeof(float),
+        (void *) (3 * sizeof(float)) // Offset!
+    );
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbinding stuff
+    glBindVertexArray(0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
-int main(int argc, char** argv) { // arrays and pointers are related
+void CreateGraphicsPipeline() {
+    ShaderProgram = glCreateProgram();
 
-    initialize();
+    VertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(VertexShader, 1, &VertexShaderSource, NULL);
+    glCompileShader(VertexShader);
 
-    // TODO STUFF: //SDL_Surface* surface = SDL_LoadBMP("../build/image/jpegbrick.bmp");
+    FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(FragmentShader, 1, &FragmentShaderSource, NULL);
+    glCompileShader(FragmentShader);
 
-    SDL_Window* window = SDL_CreateWindow("Physics simulation", 
-                                          SDL_WINDOWPOS_UNDEFINED, 
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SCREEN_WIDTH, // Defined in definitions.h
-                                          SCREEN_HEIGHT, 
-                                          SDL_WINDOW_SHOWN);
+    glAttachShader(ShaderProgram, VertexShader);
+    glAttachShader(ShaderProgram, FragmentShader);
+    glLinkProgram(ShaderProgram);
 
-    if(window == NULL) {
-        std::cout << "Error creating window. SDL_ERROR: " << SDL_GetError() << std::endl;
-    }
+}
 
-    SDL_Renderer* renderer = nullptr;
-
-    renderer = SDL_CreateRenderer(window, 
-                                  -1, 
-                                  SDL_RENDERER_ACCELERATED);
-
-    // For the point
-    float pos_x = (float)SCREEN_WIDTH / 2; // initial position of the point
-    float pos_y = 0;
-    float pvel = 1.0;
-
-    SDL_Rect rect, rect2;
-
-    float vel = 1.0;
-    rect2.w = 25;
-    rect2.h = 25;
-    rect2.x = (float)SCREEN_WIDTH / 2;
-    rect2.y = (float)SCREEN_HEIGHT / 2;
-
-    bool IsRunning = true;
+void MainLoop(Window &win) {
+    
+    Entity *entity;
+    entity = new Circle[ParticleCount];
+    
     while(IsRunning) {
         SDL_Event event;
-
-        int mouse_x, mouse_y;
-
-        Uint32 mousePos;
-
-        mousePos = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-        rect.w = 20;
-        rect.h = 20;
-        rect.x = mouse_x - rect.w / 2;
-        rect.y = mouse_y - rect.h / 2;
-
-        SDL_SetRenderDrawColor(renderer, 
-                               0, 
-                               0, 
-                               0, 
-                               SDL_ALPHA_OPAQUE);
-
-        SDL_RenderClear(renderer);
-
-        // event loop
         while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+            if(event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
                 std::cout << "Window has been closed\n";
                 IsRunning = false;
             }
-
-            // This was a test
-            // if(event.type == SDL_MOUSEMOTION) {
-            //     std::cout << "Mouse has been moved\n";
-            // }
-            
-            if(event.button.button == SDL_BUTTON_LEFT) {
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-                SDL_RenderClear(renderer);
-
-                DrawCircle(mouse_x, mouse_y, 10, renderer); // This will render a circle. This will only happen momentarily and this is a test.
-            }
         }
 
-        SDL_SetRenderDrawColor(renderer, 
-                               255, 
-                               255, 
-                               255, 
-                               SDL_ALPHA_OPAQUE); // Can use 255 here too. This is just something that was recommended by the documentation
-        SDL_RenderDrawRect(renderer, &rect);
-
-        if(rect2.y == SCREEN_HEIGHT - 25 && rect2.y > 0) {
-            vel = -vel;
-        }
-        else if(rect2.y <= 0) {
-            vel = abs(vel);
-        }
-
-        if(pos_y == SCREEN_HEIGHT && pos_y > 0) {
-            pvel = -pvel;
-        }
-        else if(pos_y <= 0) {
-            pvel = abs(pvel);
-        }
-
-        rect2.y += vel;
-        pos_y += pvel;
-
-        SDL_RenderDrawPoint(renderer, pos_x, pos_y);
-
-        SDL_SetRenderDrawColor(renderer,
-                               0,   // R
-                               180, // G
-                               180, // B
-                               SDL_ALPHA_OPAQUE /* Opacity */);
-        SDL_RenderDrawRect(renderer, &rect2);
-
-        SDL_RenderPresent(renderer);
-
-        SDL_Delay(DELAY);
+        Draw();
+        SDL_GL_SwapWindow(win.win);
     }
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    delete []entity;
+}
 
-    return 0;
+// double ypos = 0;
+// double motion = 0.0008;
+
+void Draw() {
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+    // This is to change the color sinusoidally and stuff
+    // START
+    // float TimeValue = (double) SDL_GetTicks() / 1000;
+    // float GreenValue = abs(sin(TimeValue)); // absolute to remove negative values
+    // int VertexColorLocation = glGetUniformLocation(ShaderProgram, "VertexColor");
+    // glUniform4f(VertexColorLocation, 0.0f, GreenValue, 0.0f, 1.0f);
+    // FIN
+
+
+    // ypos += motion;
+    // if(ypos >= 1.0 || ypos <= -1.0) {
+    //     motion = -motion;
+    // }
+    // glm::mat4 trans = glm::mat4(1.0f); // Identity matrix
+
+    // Don't mess with the order. Atleast, of the translation and rotation
+    // trans = glm::translate(trans, glm::vec3(0.0f, ypos, 0.0f));
+    // trans = glm::rotate(trans, (float)SDL_GetTicks() / 500, glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate about the z-axis
+    // trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate about the z-axis
+    // trans = glm::scale(trans, glm::vec3(0.1f, 0.1f, 0.1f));
+
+
+    glUseProgram(ShaderProgram);
+
+    unsigned int TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
+
+    // glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
+    glBindVertexArray(VertexArrayObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void CleanUp() {
+    glDeleteVertexArrays(1, &VertexArrayObject);
+    glDeleteBuffers(1, &VertexBufferObject);
+    glDeleteShader(VertexShader);
+    glDeleteShader(FragmentShader);
 }

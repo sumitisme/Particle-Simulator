@@ -1,8 +1,9 @@
 # Source file
-OBJ1 = main.cpp entity.cpp
+OBJ1 = main.cpp window.cpp #shape.cpp entity.cpp
+OBJ2 = src\glad.c
 
 # Output file and path
-OBJ_NAME = ..\build\prog
+OBJ_NAME = ..\build\main
 
 # Compiler used
 CC = g++
@@ -22,7 +23,7 @@ COMPILER_FLAGS =
 # Final command
 
 all:	$(OBJ1)
-	$(CC) $(OBJ1) $(INCLUDE_PATH) $(LIBRARY_PATH) $(LINKERS) $(COMPILER_FLAGS) -o $(OBJ_NAME)
+	$(CC) $(OBJ1) $(OBJ2) $(INCLUDE_PATH) $(LIBRARY_PATH) $(LINKERS) $(COMPILER_FLAGS) -o $(OBJ_NAME)
 
 clear:	
 	rm $(OBJ_NAME)
