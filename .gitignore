@@ -1,5 +1,5 @@
 include/SDL2/*
-include/glm/*
+include/glm/*.h
 lib/*.a
 lib/*.la
 *.exe

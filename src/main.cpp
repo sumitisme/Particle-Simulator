@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_timer.h>
@@ -32,7 +33,7 @@ GLuint FragmentShader = 0;
 void VertexSpecification();
 void CreateGraphicsPipeline();
 void MainLoop(Window &);
-void Draw();
+void Draw(float &a, float &b);
 void CleanUp();
 
 const char* VertexShaderSource = 
@@ -142,30 +143,43 @@ void CreateGraphicsPipeline() {
 }
 
 void MainLoop(Window &win) {
-    
-    Entity *entity;
-    entity = new Circle[ParticleCount];
-    
+
+    float fmx, fmy; //  Normalized values
     while(IsRunning) {
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
+            int mx, my;
+            Uint32 button;
+
+            button = SDL_GetMouseState(&mx, &my);
+            
             if(event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
                 std::cout << "Window has been closed\n";
                 IsRunning = false;
             }
+
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                fmx = -1.0 + 2.0 * mx / SCREEN_WIDTH;
+                fmy = 1.0 - 2.0 * my / SCREEN_HEIGHT;
+            }
         }
 
-        Draw();
+        Draw(fmx, fmy);
+
+        // float a = 0.2f, b = 0.2f;
+        // Draw(a, b); // You HAVE TO PASS VARIABLES HERE HAI.
+
         SDL_GL_SwapWindow(win.win);
     }
 
-    delete []entity;
+    // delete []entity;
 }
 
 // double ypos = 0;
 // double motion = 0.0008;
 
-void Draw() {
+void Draw(float &a, float &b) {
+
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -174,6 +188,9 @@ void Draw() {
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    Entity entity(a, b);
+
+    entity.SetEntity(ShaderProgram, (char*)"transform");
 
     // This is to change the color sinusoidally and stuff
     // START
@@ -183,26 +200,11 @@ void Draw() {
     // glUniform4f(VertexColorLocation, 0.0f, GreenValue, 0.0f, 1.0f);
     // FIN
 
-
-    // ypos += motion;
-    // if(ypos >= 1.0 || ypos <= -1.0) {
-    //     motion = -motion;
-    // }
-    // glm::mat4 trans = glm::mat4(1.0f); // Identity matrix
-
-    // Don't mess with the order. Atleast, of the translation and rotation
-    // trans = glm::translate(trans, glm::vec3(0.0f, ypos, 0.0f));
-    // trans = glm::rotate(trans, (float)SDL_GetTicks() / 500, glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate about the z-axis
-    // trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate about the z-axis
-    // trans = glm::scale(trans, glm::vec3(0.1f, 0.1f, 0.1f));
-
-
     glUseProgram(ShaderProgram);
 
-    unsigned int TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
+    // unsigned int TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
 
     // glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
 
     glBindVertexArray(VertexArrayObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);

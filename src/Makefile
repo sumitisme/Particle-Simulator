@@ -1,5 +1,5 @@
 # Source file
-OBJ1 = main.cpp window.cpp #shape.cpp entity.cpp
+OBJ1 = main.cpp window.cpp entity.cpp shape.cpp 
 OBJ2 = src\glad.c
 
 # Output file and path

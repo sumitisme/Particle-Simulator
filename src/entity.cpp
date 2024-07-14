@@ -1,15 +1,35 @@
 #include "entity.h"
+#include "SDL2/SDL_timer.h"
 #include "definitions.h"
-#include "glm/ext/vector_float3.hpp"
+
+#include <glm/ext/vector_float3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
 
 #include <math.h>
-// glm has already been declared in entity.h so no need to do it again
+
+// Entity::Entity() {
+//  int temppx = rand() % SCREEN_WIDTH;
+//  int temppy = rand() % SCREEN_HEIGHT;
+//  int tempvx = (rand() % 200) - 100;
+//  int tempvy = (rand() % 200) - 100;
+
+//  foo -> Position.x = (float)temppx / SCREEN_WIDTH;
+//  foo -> Position.y = (float)temppy / SCREEN_HEIGHT;
+//  foo -> Velocity.x = (float)tempvx;
+//  foo -> Velocity.y = (float)tempvy;
+// }
 
 Entity::Entity(float x, float y) {
-    foo -> Mass = 1.0f;
+    foo -> Mass = 1.0f; // This is currently USELESS
     foo -> Position = glm::vec3(x, y, 0.0f);
-    foo -> Velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    foo -> Force = glm::vec3(0.0f, foo -> Mass * -9.81f, 0.0f);
+    foo -> Velocity = glm::vec3(0.1f, 0.1f, 0.0f);
+    foo -> Force = glm::vec3(0.0f, foo -> Mass * -9.81f, 0.0f); // This too is currently USELESS
+}
+
+void Entity::SetPos(float &x, float &y) {
+    foo -> Position = glm::vec3(x, y, 0.0f);
 }
 
 float Entity::getDist(glm::vec3 otherPos) {
@@ -52,17 +72,27 @@ void Entity::Move() {
     foo -> Position.x += foo -> Velocity.x;
     foo -> Position.y += foo -> Velocity.y;
     if(foo -> Position.x < 0) {
-        foo -> Position.x += SCREEN_WIDTH;
+        foo -> Position.x += 1.0f;
     }
-    if(foo -> Position.x >= SCREEN_WIDTH) {
-        foo -> Position.x -= SCREEN_WIDTH;
+    if(foo -> Position.x >= 1.0f) {
+        foo -> Position.x -= 1.0f;
     }
     if(foo -> Position.y < 0) {
-        foo -> Position.y += SCREEN_HEIGHT;
+        foo -> Position.y += 1.0f;
     }
-    if(foo -> Position.y >= SCREEN_HEIGHT) {
-        foo -> Position.y -= SCREEN_HEIGHT;
+    if(foo -> Position.y >= 1.0f) {
+        foo -> Position.y -= 1.0f;
     }
+}
+
+void Entity::SetEntity(GLuint ShaderProgram, char* location) {
+    glm::mat4 trans = glm::mat4(1.0f); // Identity matrix
+    trans = glm::translate(trans, glm::vec3(foo -> Position.x, foo -> Position.y, foo -> Position.z));
+    trans = glm::rotate(trans, (float)SDL_GetTicks() / 500, glm::vec3(0.0f, 0.0f, 1.0f)); // Let's not make it rotate for now.
+    trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
+
+    unsigned int TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
+    glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 }
 
 Entity::~Entity() {
