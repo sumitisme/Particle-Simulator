@@ -1,29 +1,18 @@
 #pragma once
 
-#define SCREEN_WIDTH 600
-#define SCREEN_HEIGHT 600 
+#define SCREEN_WIDTH 700
+#define SCREEN_HEIGHT 700
 
-#include <glm/glm.hpp>
-
-struct Object {
-    glm::vec3 Position;
-    glm::vec3 Velocity;
-    glm::vec3 Force;
-    float Time;
-    float Mass;
-};
+#define PI 3.1514
 
 const float vertices[] = {
-    // position         // color
-     0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
-     0.5f,  0.5f, 0.0f,   0.0f, 1.0f, 1.0f,
+     0.1f,  0.1f, 0.0f,  1.0f, 0.0f, 0.0f,
+     0.1f, -0.1f, 0.0f,  0.0f, 1.0f, 0.0f,
+    -0.1f, -0.1f, 0.0f,  0.0f, 0.0f, 1.0f,
+    -0.1f,  0.1f, 0.0f,  1.0f, 0.0f, 1.0f
 };
 
 const unsigned int indices[] = {
-    0, 1, 2,
-    2, 3, 0
+    0, 1, 3,
+    1, 2, 3
 };
-
-const int ParticleCount = 100;

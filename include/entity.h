@@ -1,23 +1,28 @@
 #pragma once
 
-#include "definitions.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
 class Entity {
-    Object *foo;
-    GLuint ShaderProgram;
-
+    glm::vec3 position;
+    glm::vec3 velocity;
+    // glm::vec3 color; // Might not do this one idk
 public:
-    Entity(float x = 0, float y = 0);
+    Entity();
 
-    virtual void SetPos(float &x, float &y);
-    virtual float getDist(glm::vec3);
-    virtual glm::vec3 getNormal(glm::vec3 otherPos);
+    void SetPos(float a, float b);
 
-    virtual void Attract(glm::vec3 PosToAttract, float multiplier);
-    virtual void Friction(float amount);
-    virtual void Move();
-    virtual void SetEntity(GLuint ShaderProgram, char *location);
+    void SetVelocity(float a, float b);
 
-    virtual ~Entity();
+    float GetDist(glm::vec3 OtherPos);
+
+    void Move();
+
+    void ShowPos();
+
+    void SetEntity(GLuint ShaderProgram, char* location);
+
+    ~Entity();
 };
