@@ -9,7 +9,6 @@ class Entity {
     static int count;
     int ObjectNumber;
 
-    glm::vec3 position;
     glm::vec3 velocity;
     // glm::vec3 color; // Might not do this one idk
     
@@ -17,6 +16,8 @@ class Entity {
     GLuint VertexBufferObject;
     GLuint ElementBufferObject;
     unsigned int TransformLoc;
+
+    double grav = 0.0000981f;
 
     float vertices[24] = {
          0.01f,  0.01f, 0.0f,  1.0f, 0.0f, 0.0f,
@@ -30,6 +31,8 @@ class Entity {
     };
 
 public:
+    glm::vec3 position;
+
     Entity();
 
     void VertexSpec();
@@ -43,6 +46,8 @@ public:
     glm::vec3 GetNormal(glm::vec3);
 
     void Move();
+
+    void Gravity();
 
     void Attract(glm::vec3);
     

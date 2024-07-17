@@ -27,3 +27,6 @@ all:	$(OBJ1)
 
 clear:	
 	rm $(OBJ_NAME)
+
+run:
+	$(OBJ_NAME)

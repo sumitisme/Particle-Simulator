@@ -29,19 +29,26 @@ int main(int argv, char** args) {
 
 void MainLoop(Window &win, Pipeline &gp) {
     int quantity = NO_OF_PARTICLES;
-
-    // std::cout << "Enter the number of entities:\n";
-    // std::cin >> quantity;
-
+    
     Entity *entity;
     entity = new Entity[quantity];
 
+    float a = 0;
+    int b = 0;
     // Initialization
     for(int i = 0; i < quantity; i++) {
-        entity[i].SetPos(-0.95f + (float) i / 10, 0.2f);
+        entity[i].SetPos(-0.98f + (float) b / 50, 0.95f + a);
         entity[i].ShowPos();
         entity[i].SetVelocity(0.0f, 0.0f);
+        b++;
+        if(b % (quantity / 40) == 0) {
+            b = 0.0f;
+            a -= 0.05f;
+        }
     }
+    
+    int flag = 0;
+
     float fmx = 0.0f, fmy = 0.0f; // Normalized values
     int mx = 0, my = 0;
 
@@ -59,6 +66,8 @@ void MainLoop(Window &win, Pipeline &gp) {
                 buttons = SDL_GetMouseState(&mx, &my);
                 fmx = -1.0 + 2.0 * mx / SCREEN_WIDTH;
                 fmy = 1.0 - 2.0 * my / SCREEN_HEIGHT;
+                std::cout << "Mouse position: x = " << fmx << ", y = " << fmy << std::endl;
+                flag = 1;
             }
         }
 
@@ -66,10 +75,13 @@ void MainLoop(Window &win, Pipeline &gp) {
 
         PreDraw(gp);
 
-        for(int i = 0; i < NO_OF_PARTICLES; i++) {
-            entity[i].Attract(MousePos);
-            entity[i].DoFriction(0.99);
-            entity[i].Move();
+        if(flag == 1) {
+            for(int i = 0; i < quantity; i++) {
+                entity[i].Attract(MousePos);
+                entity[i].DoFriction(0.99);
+                // entity[i].Gravity();
+                entity[i].Move();
+            }
         }
 
         glUseProgram(gp.ShaderProgram);
@@ -91,6 +103,6 @@ void PreDraw(Pipeline &gp) {
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    glClearColor(0.12f, 0.12f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

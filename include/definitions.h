@@ -1,8 +1,8 @@
 #pragma once
 
-#define SCREEN_WIDTH 700
-#define SCREEN_HEIGHT 700
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
 
 #define PI 3.1514
 
-#define NO_OF_PARTICLES 10
+#define NO_OF_PARTICLES 15000

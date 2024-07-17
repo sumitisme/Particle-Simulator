@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "glad/glad.h"
+#include "glm/ext/matrix_float4x4.hpp"
 #include "definitions.h"
 
 #include <iostream>
@@ -8,7 +9,6 @@
 int Entity::count = -1;
 
 Entity::Entity() {
-
     count++;
     ObjectNumber = count;
     
@@ -88,7 +88,7 @@ void Entity::SetPos(float a = 0, float b = 0) {
     position.y = b;
 }
 
-void Entity::SetVelocity(float a, float b) {
+void Entity::SetVelocity(float a = 0, float b = 0) {
     velocity.x = a;
     velocity.y = b;
 }
@@ -101,25 +101,37 @@ float Entity::GetDist(glm::vec3 OtherPos) {
 }
 
 glm::vec3 Entity::GetNormal(glm::vec3 OtherPos) {
-    // Blatantly copied from codemaker4 (on github) for this physics portion
     float dist = GetDist(OtherPos);
-    // if (dist == 0.0f) {
-    //     dist = (float)2 / SCREEN_WIDTH;
-    // }
+    if (dist == 0.0f) {
+        dist = (float)2 / SCREEN_WIDTH;
+    }
     
-    float dx = position.x - OtherPos.x;
-    float dy = position.y - OtherPos.y;
+    float dx = OtherPos.x - position.x;
+    float dy = OtherPos.y - position.y;
 
     glm::vec3 normal = glm::vec3(dx * (1 / dist), dy * (1 / dist), 0.0f); // The unit vector in the given direction
     return normal;
 }
 
 void Entity::Attract(glm::vec3 PosToAttract) {
+    // I CANT GET THIS TO WORK!!!!
     float dist = GetDist(PosToAttract); // Need to verify this one
     glm::vec3 normal = GetNormal(PosToAttract);
 
-    velocity.x -= normal.x / dist;
-    velocity.y -= normal.y / dist;
+    if (dist == 0.0f) {
+        dist = (float)2 / SCREEN_WIDTH;
+    }
+
+    float tempx, tempy;
+    tempx = dist * 2.0f * SCREEN_WIDTH;
+    tempy = dist * 2.0f * SCREEN_HEIGHT;
+
+    velocity.x += normal.x * 1 / (tempx * 1.5f);
+    velocity.y += normal.y * 1 / (tempy * 1.5f);
+}
+
+void Entity::Gravity() {
+    velocity.y -= grav;
 }
 
 void Entity::Move() {
@@ -127,17 +139,17 @@ void Entity::Move() {
     position.x += velocity.x;
     position.y += velocity.y;
 
-    if(position.x < -1.0f) {
-        position.x += 2.0f;
+    if(position.x <= -1.414f) {
+        position.x = -1.414f;
     }
-    if(position.x >= 1.0f) {
-        position.x -= 2.0f;
+    if(position.x >= 1.414f) {
+        position.x = 1.414f;
     }
-    if(position.y < -1.0f) {
-        position.y += 2.0f;
+    if(position.y <= -1.414f) {
+        position.y = -1.414f;
     }
-    if(position.y >= 1.0f) {
-        position.y -= 2.0f;
+    if(position.y >= 1.414f) {
+        position.y = 1.414f;
     }
 }
 
@@ -156,6 +168,7 @@ void Entity::ShowPos() {
 void Entity::SetEntity(GLuint ShaderProgram, char* location) {
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::translate(trans, glm::vec3(position)); // Swizzeling (?) is allowed
+    trans = glm::scale(trans, glm::vec3(0.3f, 0.3f, 1.0f));
 
     TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
     glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, glm::value_ptr(trans));

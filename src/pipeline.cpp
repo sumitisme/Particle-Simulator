@@ -22,7 +22,8 @@ const char* FragmentShaderSource =
     "out vec4 color;\n"
 
     "void main() {\n"
-    "   color = vec4(OurCol.x, OurCol.y, OurCol.z, 1.0f);\n"
+    "   //color = vec4(OurCol.x, OurCol.y, OurCol.z, 1.0f);\n"
+    "   color = vec4(0.96f, 0.745f, 0.0f, 1.0f);\n"
     "}\0";
 
 Pipeline::Pipeline() {
