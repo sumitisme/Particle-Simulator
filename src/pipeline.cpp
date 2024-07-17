@@ -12,7 +12,7 @@ const char* VertexShaderSource =
 
     "out vec3 OurCol;\n"
     "void main() {\n"
-    "   gl_Position = transform * vec4(position.x, position.y, position.z, 1.0f);\n"
+    "   gl_Position = transform * vec4(position, 1.0f);\n"
     "   OurCol = color;\n"
     "}\0";
 
@@ -26,6 +26,8 @@ const char* FragmentShaderSource =
     "}\0";
 
 Pipeline::Pipeline() {
+    std::cout << "Graphics Pipeline Generated\n";
+
     ShaderProgram = glCreateProgram();
 
     VertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -42,6 +44,8 @@ Pipeline::Pipeline() {
 }
 
 Pipeline::~Pipeline() {
+    std::cout << "Graphics Pipeline Data Cleaned up\n";
+
     glDeleteShader(VertexShader);
     glDeleteShader(FragmentShader);
     glDeleteProgram(ShaderProgram);

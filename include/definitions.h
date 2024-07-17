@@ -5,14 +5,4 @@
 
 #define PI 3.1514
 
-const float vertices[] = {
-     0.1f,  0.1f, 0.0f,  1.0f, 0.0f, 0.0f,
-     0.1f, -0.1f, 0.0f,  0.0f, 1.0f, 0.0f,
-    -0.1f, -0.1f, 0.0f,  0.0f, 0.0f, 1.0f,
-    -0.1f,  0.1f, 0.0f,  1.0f, 0.0f, 1.0f
-};
-
-const unsigned int indices[] = {
-    0, 1, 3,
-    1, 2, 3
-};
+#define NO_OF_PARTICLES 10

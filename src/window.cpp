@@ -19,8 +19,22 @@ Window::Window() {
                            SCREEN_WIDTH, 
                            SCREEN_HEIGHT, 
                            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+
+    if(window == NULL) {
+        std::cout << "Window failed to create\n";
+    }
+    else {
+        std::cout << "Window has been created\n";
+    }
     
     context = SDL_GL_CreateContext(window);
+
+    if(context == NULL) {
+        std::cout << "GL context failed to be created\n";
+    }
+    else {
+        std::cout << "GL context has been created\n";
+    }
 
     if(!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
         std::cout << "Glad failed to load\n";

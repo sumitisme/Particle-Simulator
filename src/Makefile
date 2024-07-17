@@ -1,5 +1,5 @@
 # Source file
-OBJ1 = main.cpp window.cpp vertex.cpp pipeline.cpp entity.cpp
+OBJ1 = main.cpp window.cpp pipeline.cpp entity.cpp
 OBJ2 = src\glad.c
 
 # Output file and path
