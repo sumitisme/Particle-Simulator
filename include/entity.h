@@ -20,10 +20,10 @@ class Entity {
     double grav = 0.0000981f;
 
     float vertices[24] = {
-         0.01f,  0.01f, 0.0f,  1.0f, 0.0f, 0.0f,
-         0.01f, -0.01f, 0.0f,  0.0f, 1.0f, 0.0f,
-        -0.01f, -0.01f, 0.0f,  0.0f, 0.0f, 1.0f,
-        -0.01f,  0.01f, 0.0f,  1.0f, 0.0f, 1.0f
+         0.01f,  0.01f, 0.0f,      1.0f, 0.0f, 0.0f,
+         0.01f, -0.01f, 0.0f,      0.0f, 1.0f, 0.0f,
+        -0.01f, -0.01f, 0.0f,      0.0f, 0.0f, 1.0f,
+        -0.01f,  0.01f, 0.0f,      1.0f, 0.0f, 1.0f
     };
     unsigned int indices[6] = {
         0, 1, 3,
@@ -37,23 +37,23 @@ public:
 
     void VertexSpec();
 
-    void SetPos(float, float);
+    void SetPos(float, float); // Suraj
 
-    void SetVelocity(float, float);
+    void SetVelocity(float, float); // Suraj
 
-    float GetDist(glm::vec3);
+    float GetDist(glm::vec3); // Suraj
 
-    glm::vec3 GetNormal(glm::vec3);
+    glm::vec3 GetNormal(glm::vec3); // Suraj
 
-    void Move();
+    void Move(); // Suraj
 
-    void Gravity();
+    void Gravity(); // Suraj
 
-    void Attract(glm::vec3);
+    void Attract(glm::vec3); // Suraj
     
-    void DoFriction(float);
+    void DoFriction(float); // Suraj
 
-    void ShowPos();
+    void ShowPos(); // Suraj
 
     void SetEntity(GLuint, char*);
 
