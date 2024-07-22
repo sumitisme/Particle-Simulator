@@ -102,8 +102,9 @@ float Entity::GetDist(glm::vec3 OtherPos) {
 
 glm::vec3 Entity::GetNormal(glm::vec3 OtherPos) {
     float dist = GetDist(OtherPos);
-    if (dist == 0.0f) {
-        dist = (float)2 / SCREEN_WIDTH;
+
+    if(dist <= 0.02f) {
+        dist = 1;
     }
     
     float dx = OtherPos.x - position.x;
@@ -118,16 +119,20 @@ void Entity::Attract(glm::vec3 PosToAttract) {
     float dist = GetDist(PosToAttract); // Need to verify this one
     glm::vec3 normal = GetNormal(PosToAttract);
 
-    if (dist == 0.0f) {
-        dist = (float)2 / SCREEN_WIDTH;
-    }
-
     float tempx, tempy;
     tempx = dist * 2.0f * SCREEN_WIDTH;
     tempy = dist * 2.0f * SCREEN_HEIGHT;
 
-    velocity.x += normal.x * 1 / (tempx * 1.5f);
-    velocity.y += normal.y * 1 / (tempy * 1.5f);
+    if(dist > 0.01f) {
+        velocity.x += normal.x * (1 / tempx);
+        velocity.y += normal.y * (1 / tempy);
+    }
+    if(dist <= 0.01f) {
+        velocity.x -= normal.x * (1 / tempx);
+        velocity.y -= normal.y * (1 / tempy);
+    }
+//  velocity.x += normal.x * 0.08;
+//  velocity.y += normal.y * 0.08; 
 }
 
 void Entity::Gravity() {
@@ -168,7 +173,7 @@ void Entity::ShowPos() {
 void Entity::SetEntity(GLuint ShaderProgram, char* location) {
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::translate(trans, glm::vec3(position)); // Swizzeling (?) is allowed
-    trans = glm::scale(trans, glm::vec3(0.3f, 0.3f, 1.0f));
+    trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 1.0f));
 
     TransformLoc = glGetUniformLocation(ShaderProgram, "transform");
     glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, glm::value_ptr(trans));

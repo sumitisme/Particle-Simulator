@@ -78,7 +78,7 @@ void MainLoop(Window &win, Pipeline &gp) {
         if(flag == 1) {
             for(int i = 0; i < quantity; i++) {
                 entity[i].Attract(MousePos);
-                entity[i].DoFriction(0.99);
+                entity[i].DoFriction(0.97);
                 // entity[i].Gravity();
                 entity[i].Move();
             }
