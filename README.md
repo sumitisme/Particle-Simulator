@@ -4,4 +4,4 @@
 ## <b>50k particles test A<\b>
 <br>
 <br>
-<img title = "testB (50k particles)" src = "images/testB/jpg"><br>
+<img title = "testB (50k particles)" src = "images/testB.jpg"><br>
