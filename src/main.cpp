@@ -48,7 +48,6 @@ void MainLoop(Window &win, Pipeline &gp) {
     }
     
     int flag = 0;
-
     float fmx = 0.0f, fmy = 0.0f; // Normalized values
     int mx = 0, my = 0;
 
